@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Appointment Booking System · 1-Hour Slots</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        body {
+            background: linear-gradient(145deg, #0b6b9c 0%, #2ba0bb 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+            margin: 0;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(4px);
+            padding: 28px 24px;
+            border-radius: 36px;
+            width: 560px;
+            max-width: 100%;
+            max-height: 98vh;
+            overflow-y: auto;
+            box-shadow: 0 30px 50px rgba(0, 30, 50, 0.4);
+            transition: all 0.2s;
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+        h2 {
+            font-weight: 600;
+            font-size: 1.9rem;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #005f8c, #00b4d8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 6px;
+        }
+        h2, h3 { text-align: center; margin-top: 0; }
+        h3 {
+            color: #0a3847;
+            font-weight: 600;
+            font-size: 1.3rem;
+            border-bottom: 2px solid #cae9ff;
+            padding-bottom: 6px;
+            margin: 20px 0 12px 0;
+        }
+        hr {
+            border: 1px solid #d4edff;
+            margin: 20px 0 10px 0;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 12px 16px;
+            margin: 8px 0;
+            border-radius: 48px;
+            border: 1.5px solid #e0f0ff;
+            background: white;
+            font-size: 0.95rem;
+            outline: none;
+            transition: 0.15s;
+        }
+        input:focus, select:focus {
+            border-color: #0096c7;
+            box-shadow: 0 0 0 4px rgba(0,150,199,0.2);
+        }
+        button {
+            background: linear-gradient(to right, #0096c7, #48cae4);
+            color: white;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            letter-spacing: 0.3px;
+            box-shadow: 0 8px 16px -6px #0096c780;
+        }
+        button:hover {
+            background: linear-gradient(to right, #0077b6, #00b4d8);
+            transform: scale(1.02);
+        }
+        .appointment-item {
+            background: #f6fbff;
+            padding: 14px 16px;
+            margin: 12px 0;
+            border-radius: 28px;
+            font-size: 0.95rem;
+            border-left: 8px solid #48cae4;
+            box-shadow: 0 6px 12px rgba(0,80,120,0.08);
+            transition: 0.1s;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            justify-content: flex-end;
+        }
+        .small-btn {
+            width: auto;
+            padding: 8px 16px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border-radius: 60px;
+            background: #ffffff;
+            color: #005f73;
+            border: 1.5px solid #90e0ef;
+            box-shadow: none;
+            flex: 1;
+        }
+        .small-btn:hover {
+            background: #caf0f8;
+            border-color: #0096c7;
+            transform: scale(1.02);
+        }
+        .hidden { display: none !important; }
+        .role {
+            text-align: center;
+            font-weight: 600;
+            background: #e0f7ff;
+            padding: 8px 16px;
+            border-radius: 60px;
+            color: #035c7c;
+            margin: 12px 0 8px;
+            text-transform: capitalize;
+        }
+        #searchBar {
+            background: #ffffff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%230096c7" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>') no-repeat 16px center;
+            background-size: 18px;
+            padding-left: 46px;
+        }
+        .flex-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .pill {
+            background: #ade8f4;
+            color: #023047;
+            padding: 4px 10px;
+            border-radius: 60px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-left: 8px;
+        }
+        #appointmentsList {
+            margin-top: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 6px;
+        }
+        /* custom scroll */
+        #appointmentsList::-webkit-scrollbar {
+            width: 8px;
+        }
+        #appointmentsList::-webkit-scrollbar-thumb {
+            background: #90e0ef;
+            border-radius: 8px;
+        }
+        .logout-btn {
+            background: #a2d2ff;
+            color: #023e8a;
+            box-shadow: none;
+            font-weight: 600;
+            margin-top: 0;
+        }
+        .logout-btn:hover {
+            background: #5fa8d3;
+            color: white;
+        }
+        .time-optgroup {
+            font-weight: 600;
+            background: #e6f3ff;
+            padding: 4px 8px;
+            color: #0077be;
+        }
+        optgroup {
+            font-weight: 600;
+            color: #005a8c;
+        }
+        option {
+            padding: 4px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>📅 Appointment Booking · 1-Hour Slots</h2>
+
+    <!-- Admin Login -->
+    <div id="adminLoginSection">
+        <h3>🔐 Admin Login</h3>
+        <input type="text" id="adminUser" placeholder="Admin username" autocomplete="off">
+        <input type="password" id="adminPass" placeholder="Admin password">
+        <button onclick="loginAdmin()">➡️ Login as Admin</button>
+    </div>
+
+    <hr>
+
+    <!-- User login/register -->
+    <div id="userSection">
+        <h3>👤 User Login</h3>
+        <input type="text" id="loginUser" placeholder="Username">
+        <input type="password" id="loginPass" placeholder="Password">
+        <button onclick="loginUser()">🔑 Login</button>
+
+        <h3>📝 Register</h3>
+        <input type="text" id="regUser" placeholder="Choose username">
+        <input type="password" id="regPass" placeholder="Choose password">
+        <button onclick="registerUser()">✨ Register</button>
+    </div>
+
+    <!-- Main App -->
+    <div id="mainApp" class="hidden">
+        <div class="role" id="roleDisplay"></div>
+        <div style="display: flex; gap: 8px;">
+            <button class="logout-btn" onclick="logout()" style="flex:1;">🚪 Logout</button>
+        </div>
+
+        <!-- User Booking & Edit Panel -->
+        <div id="userBooking" class="hidden">
+            <h3>📆 Book new appointment (1-hour slots)</h3>
+            <input type="date" id="date">
+            <select id="time">
+                <option value="">⏰ Select time</option>
+                <optgroup label="🌙 12:00 AM — 11:00 AM (Morning)">
+                    <option>12:00 AM</option>
+                    <option>01:00 AM</option>
+                    <option>02:00 AM</option>
+                    <option>03:00 AM</option>
+                    <option>04:00 AM</option>
+                    <option>05:00 AM</option>
+                    <option>06:00 AM</option>
+                    <option>07:00 AM</option>
+                    <option>08:00 AM</option>
+                    <option>09:00 AM</option>
+                    <option>10:00 AM</option>
+                    <option>11:00 AM</option>
+                </optgroup>
+                <optgroup label="☀️ 12:00 PM — 11:00 PM (Afternoon & Evening)">
+                    <option>12:00 PM</option>
+                    <option>01:00 PM</option>
+                    <option>02:00 PM</option>
+                    <option>03:00 PM</option>
+                    <option>04:00 PM</option>
+                    <option>05:00 PM</option>
+                    <option>06:00 PM</option>
+                    <option>07:00 PM</option>
+                    <option>08:00 PM</option>
+                    <option>09:00 PM</option>
+                    <option>10:00 PM</option>
+                    <option>11:00 PM</option>
+                </optgroup>
+            </select>
+            <button onclick="bookAppointment()">➕ Book</button>
+
+            <h3>⚙️ Edit my account</h3>
+            <input type="text" id="newUsername" placeholder="New username">
+            <input type="password" id="newPassword" placeholder="New password">
+            <button onclick="updateAccount()">🔄 Update account</button>
+        </div>
+
+        <!-- Admin Panel: Search -->
+        <div id="adminPanel" class="hidden">
+            <h3>🔎 Search appointments</h3>
+            <input type="text" id="searchBar" placeholder="username / date / time ..." oninput="displayAppointments()">
+        </div>
+
+        <!-- Common appointments list -->
+        <h3 style="display: flex; align-items: center; gap: 6px;">📋 All appointments <span class="pill" id="appointmentCount"></span></h3>
+        <div id="appointmentsList"></div>
+    </div>
+</div>
+
+<script>
+(function() {
+    // ---------- STORAGE ----------
+    let users = JSON.parse(localStorage.getItem("users")) || [];
+    let appointments = JSON.parse(localStorage.getItem("appointments")) || [];
+    let currentUser = null;
+    let currentRole = null;
+
+    const adminCredentials = { username: "Getlinks", password: "Haseeb123" };
+
+    // helper to update display after any change
+    function refreshUI() {
+        if (currentRole) {
+            displayAppointments();
+        }
+    }
+
+    // ---------- REGISTER / LOGIN ----------
+    window.registerUser = function() {
+        const username = document.getElementById("regUser").value.trim();
+        const password = document.getElementById("regPass").value;
+        if (!username || !password) return alert("❌ Please fill all fields.");
+        if (users.find(u => u.username === username)) return alert("❌ Username already exists.");
+        users.push({ username, password });
+        localStorage.setItem("users", JSON.stringify(users));
+        alert("✅ Registration successful! You can now log in.");
+        document.getElementById("regUser").value = "";
+        document.getElementById("regPass").value = "";
+    };
+
+    window.loginUser = function() {
+        const username = document.getElementById("loginUser").value.trim();
+        const password = document.getElementById("loginPass").value;
+        const user = users.find(u => u.username === username && u.password === password);
+        if (!user) return alert("❌ Invalid username or password.");
+        currentUser = username;
+        currentRole = "user";
+        openApp();
+        // clear fields
+        document.getElementById("loginUser").value = "";
+        document.getElementById("loginPass").value = "";
+    };
+
+    window.loginAdmin = function() {
+        const username = document.getElementById("adminUser").value.trim();
+        const password = document.getElementById("adminPass").value;
+        if (username === adminCredentials.username && password === adminCredentials.password) {
+            currentUser = username;
+            currentRole = "admin";
+            openApp();
+            document.getElementById("adminUser").value = "";
+            document.getElementById("adminPass").value = "";
+        } else {
+            alert("❌ Invalid admin credentials.");
+        }
+    };
+
+    function openApp() {
+        document.getElementById("adminLoginSection").classList.add("hidden");
+        document.getElementById("userSection").classList.add("hidden");
+        document.getElementById("mainApp").classList.remove("hidden");
+        document.getElementById("roleDisplay").innerText = "👑 " + currentRole + " · " + (currentRole === 'admin' ? 'Getlinks' : currentUser);
+
+        // toggle sections
+        const userBookingDiv = document.getElementById("userBooking");
+        const adminPanelDiv = document.getElementById("adminPanel");
+        if (currentRole === "admin") {
+            userBookingDiv.classList.add("hidden");
+            adminPanelDiv.classList.remove("hidden");
+        } else {
+            userBookingDiv.classList.remove("hidden");
+            adminPanelDiv.classList.add("hidden");
+        }
+
+        // reset search bar if admin
+        if (currentRole === "admin") {
+            document.getElementById("searchBar").value = "";
+        }
+
+        displayAppointments();
+    }
+
+    window.logout = function() {
+        currentUser = null;
+        currentRole = null;
+        document.getElementById("mainApp").classList.add("hidden");
+        document.getElementById("adminLoginSection").classList.remove("hidden");
+        document.getElementById("userSection").classList.remove("hidden");
+
+        // clear any inputs
+        document.getElementById("adminUser").value = "";
+        document.getElementById("adminPass").value = "";
+        document.getElementById("loginUser").value = "";
+        document.getElementById("loginPass").value = "";
+    };
+
+    // ---------- APPOINTMENT ACTIONS ----------
+    window.bookAppointment = function() {
+        const date = document.getElementById("date").value;
+        const time = document.getElementById("time").value;
+        if (!date || !time) return alert("📅 Please pick a date and time.");
+        
+        // Check if slot is already booked (case-insensitive time comparison)
+        const exists = appointments.find(app => 
+            app.date === date && app.time.toLowerCase() === time.toLowerCase()
+        );
+        
+        if (exists) return alert("⛔ This slot is already booked.");
+        
+        appointments.push({ user: currentUser, date, time });
+        localStorage.setItem("appointments", JSON.stringify(appointments));
+        alert("✅ Appointment booked.");
+        displayAppointments();
+        // optionally reset fields
+        document.getElementById("date").value = "";
+        document.getElementById("time").value = "";
+    };
+
+    // display with search filter (global)
+    window.displayAppointments = function() {
+        const listDiv = document.getElementById("appointmentsList");
+        if (!listDiv) return;
+        listDiv.innerHTML = "";
+
+        const filter = document.getElementById("searchBar")?.value.toLowerCase() || "";
+        let filteredAppointments = appointments;
+
+        if (filter) {
+            filteredAppointments = appointments.filter(app =>
+                (`${app.user} ${app.date} ${app.time}`).toLowerCase().includes(filter)
+            );
+        }
+
+        // update count pill
+        const countSpan = document.getElementById("appointmentCount");
+        if (countSpan) countSpan.innerText = filteredAppointments.length;
+
+        if (filteredAppointments.length === 0) {
+            listDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#6c757d;">✨ No appointments found</div>';
+            return;
+        }
+
+        filteredAppointments.forEach((app, index) => {
+            // find original index for edit/delete (to modify actual appointments array)
+            const originalIndex = appointments.findIndex(a => 
+                a.user === app.user && a.date === app.date && a.time === app.time
+            );
+            if (originalIndex === -1) return; // safety
+
+            const div = document.createElement("div");
+            div.className = "appointment-item";
+            div.innerHTML = `<strong>${app.user}</strong>  ·  ${app.date}  at  ${app.time}`;
+
+            // Buttons: edit (admin only) + delete (admin or owner)
+            const btnGroup = document.createElement("div");
+            btnGroup.className = "btn-group";
+
+            if (currentRole === "admin") {
+                // Edit button (admin only)
+                const editBtn = document.createElement("button");
+                editBtn.className = "small-btn";
+                editBtn.innerText = "✏️ Edit";
+                editBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    editAppointment(originalIndex);
+                };
+                btnGroup.appendChild(editBtn);
+            }
+
+            // Delete button: visible for admin OR the user who owns it
+            if (currentRole === "admin" || (currentRole === "user" && app.user === currentUser)) {
+                const delBtn = document.createElement("button");
+                delBtn.className = "small-btn";
+                delBtn.innerText = "🗑️ Delete";
+                delBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    deleteAppointment(originalIndex);
+                };
+                btnGroup.appendChild(delBtn);
+            }
+
+            if (btnGroup.children.length > 0) {
+                div.appendChild(btnGroup);
+            }
+
+            listDiv.appendChild(div);
+        });
+    };
+
+    // Admin edit
+    window.editAppointment = function(index) {
+        if (currentRole !== "admin") return alert("🔒 Only admin can edit appointments.");
+        const app = appointments[index];
+        const newDate = prompt("📅 Edit date (YYYY-MM-DD):", app.date);
+        if (!newDate) return;
+        const newTime = prompt("⏰ Edit time (e.g., 02:00 PM):", app.time);
+        if (!newTime) return;
+
+        // check conflict (excluding current appointment) - case insensitive
+        const exists = appointments.find((a, i) => 
+            i !== index && a.date === newDate && a.time.toLowerCase() === newTime.toLowerCase()
+        );
+        if (exists) return alert("⛔ Slot already taken by another appointment.");
+        
+        app.date = newDate;
+        app.time = newTime;
+        localStorage.setItem("appointments", JSON.stringify(appointments));
+        displayAppointments();
+        alert("✅ Appointment updated.");
+    };
+
+    // Delete (admin or owner)
+    window.deleteAppointment = function(index) {
+        const app = appointments[index];
+        if (!app) return;
+        if (currentRole !== "admin" && app.user !== currentUser) {
+            return alert("🔒 You can only delete your own appointments.");
+        }
+        if (confirm(`Delete appointment for ${app.user} on ${app.date} at ${app.time}?`)) {
+            appointments.splice(index, 1);
+            localStorage.setItem("appointments", JSON.stringify(appointments));
+            displayAppointments();
+        }
+    };
+
+    // ---------- UPDATE USER ACCOUNT ----------
+    window.updateAccount = function() {
+        const newUsername = document.getElementById("newUsername").value.trim();
+        const newPassword = document.getElementById("newPassword").value;
+        if (!newUsername || !newPassword) return alert("✏️ Fill both fields.");
+        
+        // check if new username already taken by another user
+        const otherUser = users.find(u => u.username === newUsername && u.username !== currentUser);
+        if (otherUser) return alert("❌ Username already taken.");
+        
+        const userIndex = users.findIndex(u => u.username === currentUser);
+        if (userIndex === -1) return alert("Error: user not found.");
+        
+        // update username in users array
+        users[userIndex] = { username: newUsername, password: newPassword };
+        localStorage.setItem("users", JSON.stringify(users));
+        
+        // also update appointments that belong to this user (keep relation via username)
+        appointments.forEach(app => {
+            if (app.user === currentUser) {
+                app.user = newUsername;
+            }
+        });
+        localStorage.setItem("appointments", JSON.stringify(appointments));
+        
+        currentUser = newUsername;
+        document.getElementById("newUsername").value = "";
+        document.getElementById("newPassword").value = "";
+        
+        alert("✅ Account updated. Your username changed.");
+        refreshUI();
+        // update role display
+        document.getElementById("roleDisplay").innerText = "👑 " + currentRole + " · " + currentUser;
+    };
+
+    // initial local load: nothing else
+    window.onload = function() {
+        // if someone is already logged in from previous session? We'll just reset to logged out view.
+        logout(); // ensures clean start
+    };
+
+})();
+</script>
+</body>
+</html>
